@@ -25,6 +25,12 @@
 //Start                               Start       End of Rate
 //                                    of Word 20
 
+//|------------------- RATE (An toàn để xuất) -------------------|--- CAPACITY (CẤM) ---|
+//[Word 0] [Word 1] ... [Word 9] [Word 10 (Nửa nạc nửa mỡ)] ...
+//|128bit| |128bit| ... |128bit| |64 bit Rate | 64 bit Capacity| ...
+//                               ^              ^
+//                               Valid          DANGER ZONE!
+
 
 module shake128_top(
     input  wire             i_clk,
@@ -35,7 +41,7 @@ module shake128_top(
     input  wire             i_last, // report this is the last data package
     output reg              o_ready, //module ready to receive data
     
-    output reg  [63:0]      o_data,
+    output reg  [127:0]     o_data,
     output reg              o_valid, // o_data valid
     input  wire             i_ack, // bao da nhan data de lay data moi
     
@@ -46,6 +52,11 @@ module shake128_top(
     
     // SHAKE128: Rate = 1344 bits = 21 words (64-bit)
     localparam RATE_WORDS = 21;
+    
+    // output 128bit: 1344 / 128 = 10.5
+    //=> 10 word full 128 bit, the last qord just have 64 bit valid
+    localparam SQUEEZE_FULL_WORDS = 10; 
+    localparam SQUEEZE_LAST_IDX   = 10; // Word thứ 11 (Index 10) 
     
     reg [1599:0] state; // registter state Bot bien
     reg [4:0]    word_index; // con tro vi tri dang ghi
@@ -86,7 +97,7 @@ module shake128_top(
             current_state_fsm <=  S_IDLE;
             state             <= 0;
             word_index        <= 0;
-            f1600_start       <=  0;
+            f1600_start       <= 0;
             is_padding_phase  <= 0;
             o_ready           <= 0;
             o_valid           <= 0;
@@ -181,7 +192,18 @@ module shake128_top(
                 S_SQUEEZE: begin
                     // Xuất dữ liệu ngẫu nhiên ra ngoài
                     o_valid <= 1;
-                    o_data  <= state[word_index*64 +: 64];
+                    
+                    // Logic to choose the 128 bit data
+                    if (word_index < SQUEEZE_FULL_WORDS) begin
+                        // 0 ... 9 full 128bit
+                        o_data  <= state[word_index*128 +: 128];
+                    end
+                    else begin
+                        //the last word (word 10 : just have 64 bit of RATE (1280 -> 1343)
+                        // 1344-> last is capacity -> bis mats
+                        // insert 0 to high 64bit
+                        o_data  <= {64'd0, state[1280 +: 64]};
+                    end
                     
                     if (i_ack) begin
                         // Bên ngoài đã đọc xong, chuẩn bị số tiếp theo
