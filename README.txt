@@ -1,8 +1,8 @@
 Flow của AES_SHAKE sau khi được update:
 
 				
-			    |  AES_CBC(ENCRYPT)|                                                                |  AES_CBC(DECRYPT)|		
-		TRNG------->| IV               |                                                                | IV               |
+	                        |  AES_CBC(ENCRYPT)|                                                                |  AES_CBC(DECRYPT)|		
+ TRNG---------------------->| IV               | -------------------------------------------------------------> | IV               |
  Password----> 	SHAKE128--->| KEY              |---------------------------------------------->RSA------------> | KEY              |    
  INPUT--------------------> | PLAINTEXT        |------------> CIPHERTEXT----------->DMA-----------------------> | PLAINTEXT        |
 
