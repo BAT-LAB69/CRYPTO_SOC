@@ -21,57 +21,49 @@
 
 
 module keyexpan(
- input  [255:0] key,        // key gốc AES-128
-    output [1919:0] roundKeys   // 11 round keys × 128 bit
+ input  [127:0] key,        // key gốc AES-128
+    output [1407:0] roundKeys   // 11 round keys × 128 bit
 );
 
     
-    reg [31:0] w [0:59];   // 44 word (32-bit)
+    reg [31:0] w [0:43];   // 44 word (32-bit)
 
     integer i;
    reg [31:0] temp;
     
     always @(*) begin
        
-        w[0] = key[255:224]; w[1] = key[223:192];
-        w[2] = key[191:160]; w[3] = key[159:128];
-        w[4] = key[127:96];  w[5] = key[95:64];
-        w[6] = key[63:32];   w[7] = key[31:0];
+        w[0] = key[127:96]; //key gốc
+        w[1] = key[95:64];
+        w[2] = key[63:32];
+        w[3] = key[31:0];
 
        
-        for (i = 4; i < 60; i = i + 1) begin
+        for (i = 4; i < 44; i = i + 1) begin
          
             temp = w[i-1];
 
-            if (i % 8 == 0) begin
-                temp = subWord(rotWord(temp)) ^ rcon(i/8);
+            if (i % 4 == 0) begin
+                temp = subWord(rotWord(temp)) ^ rcon(i/4);
             end
-                else if (i % 8 == 4) begin // THÊM: Bước subWord bổ sung cho AES-256
-                temp = subWord(temp);
-            end
-            w[i] = w[i-8] ^ temp;
+
+            w[i] = w[i-4] ^ temp;
         end
     end
 
     
-   
-
     assign roundKeys = {
         w[0],  w[1],  w[2],  w[3],    // Round key 0
         w[4],  w[5],  w[6],  w[7],    // Round key 1
         w[8],  w[9],  w[10], w[11],   // Round key 2
-        w[12], w[13], w[14], w[15],   // Round key 3
-        w[16], w[17], w[18], w[19],   // Round key 4
-        w[20], w[21], w[22], w[23],   // Round key 5
-        w[24], w[25], w[26], w[27],   // Round key 6
-        w[28], w[29], w[30], w[31],   // Round key 7
-        w[32], w[33], w[34], w[35],   // Round key 8
-        w[36], w[37], w[38], w[39],   // Round key 9
-        w[40], w[41], w[42], w[43],   // Round key 10
-        w[44], w[45], w[46], w[47],   // Round key 11
-        w[48], w[49], w[50], w[51],   // Round key 12
-        w[52], w[53], w[54], w[55],   // Round key 13
-        w[56], w[57], w[58], w[59]    // Round key 14
+        w[12], w[13], w[14], w[15],
+        w[16], w[17], w[18], w[19],
+        w[20], w[21], w[22], w[23],
+        w[24], w[25], w[26], w[27],
+        w[28], w[29], w[30], w[31],
+        w[32], w[33], w[34], w[35],
+        w[36], w[37], w[38], w[39],
+        w[40], w[41], w[42], w[43]    
     };
 
    
