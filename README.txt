@@ -35,3 +35,10 @@ Pressing Button to start AES Encryption...
 Time:               405000 | Mode: 1 | Key: 1489b8afa13506c13ca9beb999a31ec5 | AES Out: 92cc662c07e66c66f9a5ebcbd7c9f3bc
 Time:               445000 | Mode: 1 | Key: 00000000000000000000000000000000 | AES Out: 66e94bd4ef8a2c3b884cfa59ca342b2e
 AES Ciphertext Result: 66e94bd4ef8a2c3b884cfa59ca342b2e
+
+
+
+
+
+Tôi là rác
+
