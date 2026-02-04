@@ -7,7 +7,63 @@ Flow của AES_SHAKE sau khi được update:
  INPUT--------------------> | PLAINTEXT        |--> CIPHERTEXT--->DMA-----> | PLAINTEXT        |
 
 
+  
+----------------------------------------------------------------
+                                                               |
+----------(MỖI LẦN ACTIVE SINH VÀO 2 BUFFER)                   |
+|                                                              |
+|                                                              | (kHỐI ĐẦU RA TRNG )
+TRNG----->|Buffer1(256 bits)|---->|[127:0] IV (AES)|           |
+     |                                                         | 
+     --------|Buffer(256 bits)|---->[[511:0] SEED (ED25519)]   |
+---------------------------------------------------------------
 
+
+
+
+
+
+
+
+
+----------------------------------------------------------------
+                                                               |
+(ĐẦU VÀO CỦA ED25519 SẼ LÀ SEED ĐƯỢC SINH RA BẰNG TRNG|        |
+CỦA AES LÀ PASSWORD CỦA USER)                                  |
+|                                                              |
+|                                                              | (kHỐI ĐẦU RA SHAKE128 )
+SHAKE128----->|Buffer1(256 bits)|---->|[127:0] KEY (AES)|      |
+     |                                                         |
+     -------->|Buffer(256 bits)|---->[[255:0] KEY (ED25519)]   |
+---------------------------------------------------------------
+                                                                
+
+
+
+         
+              
+                   USER -------------->|127:0] PLAIN TEXT  |
+ ------------->|Buffer0(256 bits)|----->|[127:0] IV (AES)  |           
+ |            |Buffer2(256 bits)|----->|127:0] KEY         |   
+ |                ^  
+ |                |
+ |                ------------------------                                       
+ |  USER----------------------------     |
+ |                                 |     |     
+ |                                 V     |                           
+TRNG--->|Buffer1(256 bits)|------->SHAKE128                                                                 
+                                      | 
+                                      |
+                                      |
+                                      -->|Buffer3(256 bits)|---->[[255:0] SEED (ED25519)]
+
+ MẤY ANH DEFINE ĐẦU VÀO CHỖ NÀY DÙM TUI NHA---------------------->|[255:0]|MESSAGE
+
+
+
+
+
+NOTE: ĐẦU RA CỦA TRNG VÀ SHAKE128 ĐỀU PHẢI VÀO BUFFER HẾT NHA
 
 
 
