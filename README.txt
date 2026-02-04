@@ -55,7 +55,7 @@ TRNG--->|Buffer1(256 bits)|------->SHAKE128
                                       | 
                                       |
                                       |                           --------------------------------- 
-                                      -->|Buffer3(256 bits)|----->|[255:0] SEED (ED25519)          |
+                                      -->|Buffer3(256 bits)|----->|[255:0] KEY                     |
                                                                   |                         ED5519 |
  MẤY ANH DEFINE ĐẦU VÀO CHỖ NÀY DÙM TUI NHA---------------------->|[255:0]|MESSAGE                 |      
                                                                   ---------------------------------    
@@ -64,7 +64,8 @@ TRNG--->|Buffer1(256 bits)|------->SHAKE128
 
 
 NOTE: ĐẦU RA CỦA TRNG VÀ SHAKE128 ĐỀU PHẢI VÀO BUFFER HẾT NHA
-
+     BUFFER 0 VÀ BUFFER 1 LÀ OUT CỦA TRNG 
+	BUFFER 2 VÀ BUFFER 3 LÀ OUT CỦA SHAKE
 
 
 
