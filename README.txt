@@ -55,9 +55,9 @@ TRNG--->|Buffer1(256 bits)|------->SHAKE128
                                       | 
                                       |
                                       |                           --------------------------------- 
-                                      -->|Buffer3(256 bits)|----->|[255:0] KEY                     |
-                                                                  |                         ED5519 |
- MẤY ANH DEFINE ĐẦU VÀO CHỖ NÀY DÙM TUI NHA---------------------->|[255:0]|MESSAGE                 |      
+                                      -->|Buffer3(256 bits)|----->|[255:0] KEY                      |
+                                                                  |                         ED25519 |
+ MẤY ANH DEFINE ĐẦU VÀO CHỖ NÀY DÙM TUI NHA---------------------->|[255:0]|MESSAGE                  |      
                                                                   ---------------------------------    
 
 
