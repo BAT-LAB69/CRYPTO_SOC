@@ -1,4 +1,4 @@
-# Triển khai Phần cứng Ed25519-SHAKE128 (Verilog)
+# Triển khai Phần cứng Ed25519-SHAKE128
 
 Kho lưu trữ này chứa mã nguồn thiết kế Register-Transfer Level (RTL) của **Hệ chữ ký số Ed25519** sử dụng **SHAKE128** làm hàm băm mã hóa. Thiết kế được viết bằng Verilog và hướng đến việc triển khai trên FPGA hoặc ASIC.
 
@@ -11,32 +11,7 @@ Bản triển khai cụ thể này có các tính năng:
 - **Ký (Signing)**: Tạo ra chữ ký 64 byte ($R, S$) cho một thông điệp nhất định.
 - **Tích hợp SHAKE128**: Sử dụng hàm sponge Keccak/SHAKE128 cho tất cả các hoạt động băm (băm hạt giống, tạo số ngẫu nhiên nonce và tính toán challenge).
 
-## 2. Kiến trúc
-
-Hệ thống bao gồm một bộ điều khiển cấp cao nhất, một lõi mật mã, một đơn vị số học mô-đun và một giao diện băm.
-
-### Sơ đồ Khối Cấp cao
-
-```mermaid
-graph TD
-    TB[Testbench (ed25519_tb.v)] -->|Seed, Msg, Start| Wrapper[Wrapper (ed25519_shake128.v)]
-    Wrapper -->|Giao diện SHAKE| Hash[SHAKE128 Core (shake128_top.v)]
-    Wrapper -->|Điều khiển/Dữ liệu| Core[Ed25519 Core (ed25519_top.v)]
-    
-    subgraph Ed25519 Core
-        Core -->|Vô hướng| ScalarMul[Bộ nhân Vô hướng (scala_mul_25519.v)]
-        Core -->|Điểm A, B| PointOp[Bộ xử lý Điểm (point_op_25519.v)]
-        Core -->|Nghịch đảo| Inv[Nghịch đảo Mô-đun (inv_25519.v)]
-    end
-    
-    subgraph Đơn vị Số học
-        ScalarMul --> Mul[Bộ nhân (mul_25519.v)]
-        PointOp --> AddSub[Bộ Cộng/Trừ (add_sub_25519.v)]
-        PointOp --> Mul
-    end
-```
-
-## 3. Luồng Xử Lý Chi Tiết (Flowchart)
+## 2. Luồng Xử Lý Chi Tiết (Flowchart)
 
 Dưới đây là sơ đồ chi tiết cách phần cứng xử lý dữ liệu từ đầu vào (Seed, Message) để tạo ra chữ ký (R, S).
 
@@ -98,7 +73,7 @@ flowchart TD
 5.  **Tạo Thách thức**: SHAKE128(R + A + Message) -> $k$.
 6.  **Tính Chữ ký S**: $S = (r + k \cdot s) \pmod L$.
 
-## 4. Mô tả Module (Giải thích Mã nguồn)
+## 3. Mô tả Module (Giải thích Mã nguồn)
 
 Phần này giải thích mục đích và chức năng của từng file mã nguồn trong dự án.
 
@@ -152,7 +127,7 @@ Các module này hoạt động trên các số nguyên 255-bit trong trường 
 *   **`keccak_f1600.v`**: Hàm Hoán vị cốt lõi của SHA-3/SHAKE.
 *   **`sponge.v`**: Triển khai cấu trúc "Sponge" (Absorb data -> Permute -> Squeeze hash).
 
-## 5. Cách chạy Mô phỏng
+## 4. Cách chạy Mô phỏng
 
 Dự án được thiết lập cho **Icarus Verilog**, một trình mô phỏng Verilog mã nguồn mở miễn phí.
 
