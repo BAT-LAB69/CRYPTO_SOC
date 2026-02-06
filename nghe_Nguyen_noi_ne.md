@@ -11,30 +11,7 @@ Bản triển khai cụ thể này có các tính năng:
 - **Ký (Signing)**: Tạo ra chữ ký 64 byte ($R, S$) cho một thông điệp nhất định.
 - **Tích hợp SHAKE128**: Sử dụng hàm sponge Keccak/SHAKE128 cho tất cả các hoạt động băm (băm hạt giống, tạo số ngẫu nhiên nonce và tính toán challenge).
 
-## 2. Kiến trúc
 
-Hệ thống bao gồm một bộ điều khiển cấp cao nhất, một lõi mật mã, một đơn vị số học mô-đun và một giao diện băm.
-
-### Sơ đồ Khối Cấp cao
-
-```mermaid
-graph TD
-    TB[Testbench (ed25519_tb.v)] -->|Seed, Msg, Start| Wrapper[Wrapper (ed25519_shake128.v)]
-    Wrapper -->|Giao diện SHAKE| Hash[SHAKE128 Core (shake128_top.v)]
-    Wrapper -->|Điều khiển/Dữ liệu| Core[Ed25519 Core (ed25519_top.v)]
-    
-    subgraph Ed25519 Core
-        Core -->|Vô hướng| ScalarMul[Bộ nhân Vô hướng (scala_mul_25519.v)]
-        Core -->|Điểm A, B| PointOp[Bộ xử lý Điểm (point_op_25519.v)]
-        Core -->|Nghịch đảo| Inv[Nghịch đảo Mô-đun (inv_25519.v)]
-    end
-    
-    subgraph Đơn vị Số học
-        ScalarMul --> Mul[Bộ nhân (mul_25519.v)]
-        PointOp --> AddSub[Bộ Cộng/Trừ (add_sub_25519.v)]
-        PointOp --> Mul
-    end
-```
 
 ## 3. Luồng Xử Lý Chi Tiết (Flowchart)
 
