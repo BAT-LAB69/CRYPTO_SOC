@@ -144,21 +144,6 @@ Chạy lệnh duy nhất này trong terminal của bạn để biên dịch và 
 iverilog -o ed25519_sim ed25519_tb.v ed25519_shake128.v ed25519_top.v scala_mul_25519.v point_op_25519.v add_sub_25519.v inv_25519.v mul_25519.v arithmetic.v reducer.v keccak_f1600.v keccak_round.v sponge.v shake128_top.v && vvp ed25519_sim
 ```
 
-### Cách đọc Kết quả
-Mô phỏng sẽ in ra:
-1.  **Đầu ra**: Chữ ký R và S được tạo ra.
-2.  **Kiểm tra**: `PASS` hoặc `FAIL` cho mỗi Test Case.
-
-Ví dụ Kết quả Thành công:
-```text
->> TC2 Result: PASS (All checks passed)
-```
-
-## 6. Cấu trúc Thư mục
-*   `*.v`: Các file nguồn Verilog.
-*   `verify_logic.py`: Script Python dùng để xác minh logic nội bộ của phần cứng bằng toán học (White-box testing).
-*   `walkthrough.md`: Bản ghi lại quy trình xác minh và kết quả.
-
 ---
 **Tác giả**: Vo Hoang Nguyen
-**Công cụ hỗ trợ**: Google DeepMind Agentic Coding Assistant
+
