@@ -237,6 +237,7 @@ endmodule
 
 // keep all the N, N_INV, R2_MOD_N the same as encryption module
 // change the E to D (private exponent) (compute in software)
+// decrypt(encrypt(M)) == M
 
 module rsa_decrypt #(
     parameter WIDTH  = 32,
