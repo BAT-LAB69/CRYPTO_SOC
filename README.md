@@ -9,24 +9,20 @@ flowchart TD
     Mux -->|Mode = 1| KEMFlow["BIKE KEM Core\n(SHAKE256)"]
 
     %% Ed25519 Detailed Flow
-    subgraph "Ed25519 Signing Flow (Mode 0)"
-        EdFlow --> HashSeed["1. Băm Hạt Giống"]
-        HashSeed --> Split{Tách Key}
-        Split -->|s| GenPub["2. Tạo PubKey A"]
-        Split -->|prefix| HashNonce["3. Tạo Nonce r"]
-        GenPub --> HashChal["5. Tạo Challenge k"]
-        HashNonce --> GenR["4. Tính Cam Kết R"]
-        GenR --> HashChal
-        HashChal --> CalcS["6. Tính S"]
-        CalcS --> EdOut["OUTPUT: R, S"]
-    end
+    EdFlow --> HashSeed["1. Băm Hạt Giống"]
+    HashSeed --> Split{Tách Key}
+    Split -->|s| GenPub["2. Tạo PubKey A"]
+    Split -->|prefix| HashNonce["3. Tạo Nonce r"]
+    GenPub --> HashChal["5. Tạo Challenge k"]
+    HashNonce --> GenR["4. Tính Cam Kết R"]
+    GenR --> HashChal
+    HashChal --> CalcS["6. Tính S"]
+    CalcS --> EdOut["OUTPUT: R, S"]
 
     %% KEM Detailed Flow (Placeholder)
-    subgraph "BIKE KEM Flow (Mode 1)"
-        KEMFlow --> KEMOp["KEM Operations\n(KeyGen / Encaps / Decaps)"]
-        KEMOp --> KEMHash["SHAKE256 Hashing"]
-        KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
-    end
+    KEMFlow --> KEMOp["KEM Operations\n(KeyGen / Encaps / Decaps)"]
+    KEMOp --> KEMHash["SHAKE256 Hashing"]
+    KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
 
     %% Unified Keccak Core
     HashSeed -.->|Request| ShakeCore["Unified SHAKE Core\n(Configurable Rate/Capacity)"]
@@ -35,9 +31,6 @@ flowchart TD
     KEMHash -.->|Request| ShakeCore
 
     %% Styling
-    style Input fill:#f9f,stroke:#333
-    style EdOut fill:#f9f,stroke:#333
-    style KEMOut fill:#f9f,stroke:#333
     style Mux fill:#ffd,stroke:#333,stroke-width:2px
     style ShakeCore fill:#bbf,stroke:#333,stroke-width:4px
 ```
