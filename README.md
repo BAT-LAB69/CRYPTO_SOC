@@ -9,7 +9,7 @@ flowchart TD
     Mux -->|Mode = 1| KEMFlow["BIKE KEM Core <br> (SHAKE256)"]
 
     %% Ed25519 Detailed Flow
-    EdFlow --> HashSeed["1. HASH"]
+    EdFlow --> HashSeed["HASH"]
     HashSeed --> Split{Split}
     Split -->|s| GenPub["PublicKey A"]
     Split -->|prefix| HashNonce["Nonce r"]
@@ -20,12 +20,12 @@ flowchart TD
     CalcS --> EdOut["OUTPUT: R, S"]
 
     %% KEM Detailed Flow (Placeholder)
-    KEMFlow --> KEMOp["KEM Operations\n(KeyGen / Encaps / Decaps)"]
+    KEMFlow --> KEMOp["KEM Operations <br> (KeyGen / Encaps / Decaps)"]
     KEMOp --> KEMHash["SHAKE256 Hashing"]
     KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
 
     %% Unified Keccak Core
-    HashSeed -.->|Request| ShakeCore["Unified SHAKE Core\n(Configurable Rate/Capacity)"]
+    HashSeed -.->|Request| ShakeCore["Unified SHAKE Core <br> (Configurable Rate/Capacity)"]
     HashNonce -.->|Request| ShakeCore
     HashChal -.->|Request| ShakeCore
     KEMHash -.->|Request| ShakeCore
