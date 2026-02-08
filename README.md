@@ -2,7 +2,7 @@
 ```mermaid
 flowchart TD
     %% System Input
-    Input(["INPUT: Mode, Data (Seed/Msg/Ciphertext)"]) --> Mux{"<br>(Mux)"}
+    Input(["INPUT: Mode, Data (Seed/Msg/Ciphertext)"]) --> Mux{"MUX"}
 
     %% Mode Selection
     Mux -->|Mode = 0| EdFlow["Ed25519 Core\n(SHAKE128)"]
