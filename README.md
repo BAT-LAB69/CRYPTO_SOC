@@ -5,18 +5,18 @@ flowchart TD
     Input(["INPUT: Mode, Data (Seed/Msg/Ciphertext)"]) --> Mux{"MUX"}
 
     %% Mode Selection
-    Mux -->|Mode = 0| EdFlow["Ed25519 Core\n(SHAKE128)"]
-    Mux -->|Mode = 1| KEMFlow["BIKE KEM Core\n(SHAKE256)"]
+    Mux -->|Mode = 0| EdFlow["Ed25519 Core <br>(SHAKE128)"]
+    Mux -->|Mode = 1| KEMFlow["BIKE KEM Core <br> (SHAKE256)"]
 
     %% Ed25519 Detailed Flow
     EdFlow --> HashSeed["1. HASH"]
     HashSeed --> Split{Split}
-    Split -->|s| GenPub["2. PublicKey A"]
-    Split -->|prefix| HashNonce["3. Nonce r"]
-    GenPub --> HashChal["5. Challenge k"]
-    HashNonce --> GenR["4. R"]
+    Split -->|s| GenPub["PublicKey A"]
+    Split -->|prefix| HashNonce["Nonce r"]
+    GenPub --> HashChal["Challenge k"]
+    HashNonce --> GenR["R"]
     GenR --> HashChal
-    HashChal --> CalcS["6. S"]
+    HashChal --> CalcS["S"]
     CalcS --> EdOut["OUTPUT: R, S"]
 
     %% KEM Detailed Flow (Placeholder)
