@@ -28,7 +28,7 @@ flowchart TD
     HashSeed -.->|Request| ShakeCore["Unified SHAKE Core <br> (Rate/Capacity)"]
     HashNonce -.->|Request| ShakeCore
     HashChal -.->|Request| ShakeCore
-    KEMHash -.->|Request| ShakeCore
+    %% KEMHash -.->|Request| ShakeCore
 
 ```
 	
