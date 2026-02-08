@@ -21,11 +21,11 @@ flowchart TD
 
     %% KEM Detailed Flow (Placeholder)
     KEMFlow --> KEMOp["KEM Operations <br> (KeyGen / Encaps / Decaps)"]
-    KEMOp --> KEMHash["SHAKE256 Hashing"]
-    KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
+    %% KEMOp --> KEMHash["SHAKE256 Hashing"]
+    %% KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
 
     %% Unified Keccak Core
-    HashSeed -.->|Request| ShakeCore["Unified SHAKE Core <br> (Configurable Rate/Capacity)"]
+    HashSeed -.->|Request| ShakeCore["Unified SHAKE Core <br> (Rate/Capacity)"]
     HashNonce -.->|Request| ShakeCore
     HashChal -.->|Request| ShakeCore
     KEMHash -.->|Request| ShakeCore
