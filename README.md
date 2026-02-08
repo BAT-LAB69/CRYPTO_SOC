@@ -9,14 +9,14 @@ flowchart TD
     Mux -->|Mode = 1| KEMFlow["BIKE KEM Core\n(SHAKE256)"]
 
     %% Ed25519 Detailed Flow
-    EdFlow --> HashSeed["1. Băm Hạt Giống"]
-    HashSeed --> Split{Tách Key}
-    Split -->|s| GenPub["2. Tạo PubKey A"]
-    Split -->|prefix| HashNonce["3. Tạo Nonce r"]
-    GenPub --> HashChal["5. Tạo Challenge k"]
-    HashNonce --> GenR["4. Tính Cam Kết R"]
+    EdFlow --> HashSeed["1. HASH"]
+    HashSeed --> Split{Split}
+    Split -->|s| GenPub["2. PublicKey A"]
+    Split -->|prefix| HashNonce["3. Nonce r"]
+    GenPub --> HashChal["5. Challenge k"]
+    HashNonce --> GenR["4. R"]
     GenR --> HashChal
-    HashChal --> CalcS["6. Tính S"]
+    HashChal --> CalcS["6. S"]
     CalcS --> EdOut["OUTPUT: R, S"]
 
     %% KEM Detailed Flow (Placeholder)
@@ -30,9 +30,6 @@ flowchart TD
     HashChal -.->|Request| ShakeCore
     KEMHash -.->|Request| ShakeCore
 
-    %% Styling
-    style Mux fill:#ffd,stroke:#333,stroke-width:2px
-    style ShakeCore fill:#bbf,stroke:#333,stroke-width:4px
 ```
 	
 Flow của AES_SHAKE sau khi được update:
