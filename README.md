@@ -1,4 +1,5 @@
 
+```mermaid
 flowchart TD
     %% System Input
     Input(["INPUT: Mode, Data (Seed/Msg/Ciphertext)"]) --> Mux{Bộ Chọn Mode\n(Mux)}
@@ -39,7 +40,7 @@ flowchart TD
     style KEMOut fill:#f9f,stroke:#333
     style Mux fill:#ffd,stroke:#333,stroke-width:2px
     style ShakeCore fill:#bbf,stroke:#333,stroke-width:4px
-
+```
 	
 Flow của AES_SHAKE sau khi được update:
 
