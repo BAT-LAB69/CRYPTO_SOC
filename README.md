@@ -1,5 +1,46 @@
 
+flowchart TD
+    %% System Input
+    Input(["INPUT: Mode, Data (Seed/Msg/Ciphertext)"]) --> Mux{Bộ Chọn Mode\n(Mux)}
 
+    %% Mode Selection
+    Mux -->|Mode = 0| EdFlow["Ed25519 Core\n(SHAKE128)"]
+    Mux -->|Mode = 1| KEMFlow["BIKE KEM Core\n(SHAKE256)"]
+
+    %% Ed25519 Detailed Flow
+    subgraph "Ed25519 Signing Flow (Mode 0)"
+        EdFlow --> HashSeed["1. Băm Hạt Giống"]
+        HashSeed --> Split{Tách Key}
+        Split -->|s| GenPub["2. Tạo PubKey A"]
+        Split -->|prefix| HashNonce["3. Tạo Nonce r"]
+        GenPub --> HashChal["5. Tạo Challenge k"]
+        HashNonce --> GenR["4. Tính Cam Kết R"]
+        GenR --> HashChal
+        HashChal --> CalcS["6. Tính S"]
+        CalcS --> EdOut["OUTPUT: R, S"]
+    end
+
+    %% KEM Detailed Flow (Placeholder)
+    subgraph "BIKE KEM Flow (Mode 1)"
+        KEMFlow --> KEMOp["KEM Operations\n(KeyGen / Encaps / Decaps)"]
+        KEMOp --> KEMHash["SHAKE256 Hashing"]
+        KEMHash --> KEMOut["OUTPUT: Shared Secret / Ciphertext"]
+    end
+
+    %% Unified Keccak Core
+    HashSeed -.->|Request| ShakeCore["Unified SHAKE Core\n(Configurable Rate/Capacity)"]
+    HashNonce -.->|Request| ShakeCore
+    HashChal -.->|Request| ShakeCore
+    KEMHash -.->|Request| ShakeCore
+
+    %% Styling
+    style Input fill:#f9f,stroke:#333
+    style EdOut fill:#f9f,stroke:#333
+    style KEMOut fill:#f9f,stroke:#333
+    style Mux fill:#ffd,stroke:#333,stroke-width:2px
+    style ShakeCore fill:#bbf,stroke:#333,stroke-width:4px
+
+	
 Flow của AES_SHAKE sau khi được update:
 
 				
