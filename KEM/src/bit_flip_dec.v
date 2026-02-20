@@ -69,13 +69,13 @@ localparam IDLE        = 3'd0,
 
 reg [2:0] state;
 
-always @(i)begin
-    $display( "i=%0d, k=%0d, syndrome=%b, e0=%b, e1=%b", i, k, syndrome, e0, e1);
-end
+// always @(i)begin
+//     $display( "i=%0d, k=%0d, syndrome=%b, e0=%b, e1=%b", i, k, syndrome, e0, e1);
+// end
 
-always @(k)begin
-    $display(" idx0:%0d, k:%d, pos:%d", idx0, k, h0_pos[k]);    //sai ngay chỗ truy cập pos này
-end
+// always @(k)begin
+//     $display(" idx0:%0d, k:%d, pos:%d", idx0, k, h0_pos[k]);    //sai ngay chỗ truy cập pos này
+// end
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         state       <= IDLE;

@@ -150,8 +150,8 @@ module keccak_f1600(
     end
 
     //FSM
-    always @(posedge clk or negedge rst) begin
-        if (!rst) begin
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
             state <= IDLE;
             round_cnt <= 5'd0;
             curr_state <= 1600'd0;
@@ -169,11 +169,12 @@ module keccak_f1600(
                 end
                 PROCESS: begin
                     curr_state <= next_state;
+                    round_cnt <= round_cnt + 1;
+
                     if (round_cnt == 5'd23) begin
                         state <= FINISH;
-                    end else begin
-                        round_cnt <= round_cnt + 1;
-                    end
+                    end 
+                    
                 end
                 FINISH: begin
                     done <= 1'b1;
@@ -191,3 +192,112 @@ module keccak_f1600(
 endmodule
 
 
+
+///////////////// TEST /////////////////
+
+
+// `timescale 1ns/1ps
+
+// module tb_keccak_f1600;
+
+//     localparam CLK_PERIOD = 10;
+
+//     reg clk;
+//     reg rst;
+//     reg start;
+//     reg [1599:0] in_state;
+
+//     wire [1599:0] out_state;
+//     wire done;
+//     wire busy;
+
+//     // DUT
+//     keccak_f1600 dut (
+//         .clk(clk),
+//         .rst(rst),
+//         .start(start),
+//         .in_state(in_state),
+//         .out_state(out_state),
+//         .done(done),
+//         .busy(busy)
+//     );
+
+//     // Clock
+//     initial begin
+//         clk = 0;
+//         forever #(CLK_PERIOD/2) clk = ~clk;
+//     end
+
+//     // Expected output (zero input test vector)
+//     reg [1599:0] expected;
+
+//     initial begin
+//         expected = {
+//             64'h75F644E97F30A13B,
+//             64'h16F53526E70465C2,
+//             64'h1841F924A2C509E4,
+//             64'h940C7922AE3A2614,
+//             64'h8C3EE88A1CCF32C8,
+//             64'hB87C5A554FD00ECB,
+//             64'h613670957BC46611,
+//             64'h64BEFEF28CC970F2,
+//             64'h05E5635A21D9AE61,
+//             64'h01F22F1A11A5569F,
+//             64'h43B831CD0347C826,
+//             64'h81A57C16DBCF555F,
+//             64'hA9A6E6260D712103,
+//             64'hEB5AA93F2317D635,
+//             64'h30935AB7D08FFC64,
+//             64'hAD30A6F71B19059C,
+//             64'h8C5BDA0CD6192E76,
+//             64'h90FEE5A0A44647C4,
+//             64'hFF97A42D7F8E6FD4,
+//             64'h8B284E056253D057,
+//             64'hBD1547306F80494D,
+//             64'hD598261EA65AA9EE,
+//             64'h84D5CCF933C0478A,
+//             64'hF1258F7940E1DDE7
+//         };
+//     end
+//     integer i;
+//     initial begin
+
+//         // Init
+//         rst = 0;
+//         start = 0;
+//         in_state = 1600'd0;
+
+//         #50;
+//         rst = 1;
+
+//         #20;
+
+//         $display("====================================");
+//         $display("TEST: Keccak-f1600 Zero Input");
+//         $display("====================================");
+
+//         start = 1;
+//         #10;
+//         start = 0;
+
+//         wait(done);
+
+//         #10;
+
+//         // if (out_state === expected) begin
+//         //     $display("PASS: Output matches NIST vector");
+//         // end else begin
+//         //     $display("FAIL: Output mismatch");
+//         //     $display("Expected = %h", expected);
+//         //     $display("Got      = %h", out_state);
+//         // end
+
+       
+//         for (i = 0; i < 25; i = i + 1)
+//             $display("Lane %0d = %h", i, out_state[i*64 +: 64]);
+
+//         #50;
+//         $finish;
+//     end
+
+// endmodule
