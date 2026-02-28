@@ -1,8 +1,4 @@
-`include "aes_gcm_top.v"  
-`include "ed25519_top.v"
-`include "shake_top.v"
-`include "bike_top.v"
-`include "rsa.v"
+
 
 module aes_gcm_mm #(
     parameter BASE_ADDR = 32'h4000_0000
@@ -258,8 +254,8 @@ module bike_mm #(
     reg [W*POS_W-1:0] h0_reg;
     reg [W*POS_W-1:0] h1_reg;
 
-    reg [R-1:0] c0_reg;
-    reg [R-1:0] c1_reg;
+    reg [165:0] c0_reg;
+    reg [165:0] c1_reg;
 
     wire [511:0] shared_key;
     wire done;

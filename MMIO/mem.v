@@ -1,4 +1,5 @@
-`include "includ_modules.v"
+
+
 
 module crypto_periph_top(
     input wire clk,
@@ -60,7 +61,7 @@ module ram_mm #(
 );
 
     wire sel = (addr[31:12] >= BASE_ADDR[31:12]);
-    //(* ram_style="block" *)
+    (* ram_style="block" *)
     reg [31:0] ram [0:RAM_WORDS-1];
 
     always @(posedge clk) begin
