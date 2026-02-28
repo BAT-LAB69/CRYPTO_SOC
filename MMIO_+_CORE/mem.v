@@ -18,7 +18,7 @@ module crypto_periph_top(
     
     always @(*) begin
         if (wstrb[0] == 1) wdata[7:0]   <= wdata_in[7:0];
-        if (wstrb[1] == 1) wdata[15:8] <= wdata_in[15:8];
+        if (wstrb[1] == 1) wdata[15:8]  <= wdata_in[15:8];
         if (wstrb[2] == 1) wdata[23:16] <= wdata_in[23:16];
         if (wstrb[2] == 1) wdata[31:24] <= wdata_in[31:24];
         
