@@ -1,12 +1,10 @@
-
-
-
 module crypto_periph_top(
     input wire clk,
     input wire rst,
 
     input wire [31:0] addr,
-    input wire [31:0] wdata,
+    input reg [31:0] wdata_in,
+    input wire [3:0]  wstrb,
     input wire we,
     input wire valid,
     output wire [31:0] rdata,
@@ -15,6 +13,18 @@ module crypto_periph_top(
 
     wire [31:0] r_aes, r_rsa, r_ed, r_shake, r_ram;
     wire rd_aes, rd_rsa, rd_ed, rd_shake, rd_ram;
+
+    reg [31:0] wdata;
+    
+    always @(*) begin
+        if (wstrb[0] == 1) wdata[7:0]   <= wdata_in[7:0];
+        if (wstrb[1] == 1) wdata[15:8] <= wdata_in[15:8];
+        if (wstrb[2] == 1) wdata[23:16] <= wdata_in[23:16];
+        if (wstrb[2] == 1) wdata[31:24] <= wdata_in[31:24];
+        
+        //load_data_from_dmem <= mem_array[{addr_to_dmem[AddrMsb:AddrLsb]}];
+    end
+
 
     aes_gcm_mm #(.BASE_ADDR(32'h4000_0000)) 
     u_aes (.clk(clk),.rst(rst),.addr(addr),.wdata(wdata),.we(we),.valid(valid),.rdata(r_aes),.ready(rd_aes));
