@@ -55,6 +55,30 @@ module sponge(
 
     assign busy = (state != IDLE);
 
+    reg [1599:0] absorb_mask;
+    integer i;
+    always @(*) begin
+        absorb_mask = 1600'd0;
+        if (state == ABSORB) begin
+            absorb_mask[1023:0] = buffer_in;
+        end else if (state == PADDING) begin
+            for (i = 0; i < 128; i = i + 1) begin
+                if (i[6:0] == saved_len) begin
+                    absorb_mask[i*8 +: 5] = 5'b11111;
+                end
+            end
+            // Padding rule: pad10*1
+            // XOR 0x80 (highest bit) at the end of the rate block
+            if (saved_mode == 1'b1) begin
+                 // SHAKE256
+                 absorb_mask[1087] = 1'b1;
+            end else begin
+                 // SHAKE128
+                 absorb_mask[1343] = 1'b1;
+            end
+        end
+    end
+
     always @(posedge clk or negedge rst) begin
         if (!rst) begin
             state <= IDLE;
@@ -82,7 +106,7 @@ module sponge(
                 end
                 ABSORB: begin
                     //XOR input data w r first bits of state
-                    sponge_state[1023:0] <= sponge_state[1023:0] ^ buffer_in;
+                    sponge_state <= sponge_state ^ absorb_mask;
                     if (i_last) begin
                         state <= PADDING;
                     end else begin
@@ -91,24 +115,8 @@ module sponge(
                     end
                 end
                 PADDING: begin
-                    //bit index = saved_len * 8
-                    // We need to XOR 0x1F starting at this index
-                    // sponge_state[idx +: 8] ...
-                    // Since 0x1F is 5 bits 11111.
-                    
-                    sponge_state[saved_len*8 +: 5] <= sponge_state[saved_len*8 +: 5] ^ 5'b11111;
-                    
-                    // Padding rule: pad10*1
-                    // XOR 0x80 (highest bit) at the end of the rate block
-                    // For SHAKE128: bit 1343
-                    // For SHAKE256: bit 1087
-                    if (saved_mode == 1'b1) begin
-                         // SHAKE256
-                         sponge_state[1087] <= sponge_state[1087] ^ 1'b1;
-                    end else begin
-                         // SHAKE128
-                         sponge_state[1343] <= sponge_state[1343] ^ 1'b1;
-                    end
+                    // XOR padding bits using the combinatorial mask
+                    sponge_state <= sponge_state ^ absorb_mask;
                     
                     f_start <= 1'b1;
                     state <= PERMUTE;

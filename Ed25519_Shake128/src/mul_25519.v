@@ -56,37 +56,23 @@ module mul_25519(
                 end
                 
                 MUL: begin
-                    if (counter == 0 || counter == 10 || counter == 20 || counter == 30 || counter == 40 || counter == 50 || counter == 60 || counter == 63) begin
+                    if (counter == 0 || counter == 64 || counter == 127) begin
                         // $display("[MUL_25519 DEBUG] Time %t: Counter = %d", $time, counter);
                     end
                     
-                    // Radix-4 multiplier (unchanged logic is fine, assuming it works)
-                    // The previous logic accumulated into 'product' correctly
-                    case (multiplier[3:0])
-                        4'd0:  product <= product;
-                        4'd1:  product <= product + {255'b0, multiplicand};
-                        4'd2:  product <= product + {254'b0, multiplicand, 1'b0};
-                        4'd3:  product <= product + {255'b0, multiplicand} + {254'b0, multiplicand, 1'b0};
-                        4'd4:  product <= product + {253'b0, multiplicand, 2'b0};
-                        4'd5:  product <= product + {255'b0, multiplicand} + {253'b0, multiplicand, 2'b0};
-                        4'd6:  product <= product + {254'b0, multiplicand, 1'b0} + {253'b0, multiplicand, 2'b0};
-                        4'd7:  product <= product + {255'b0, multiplicand} + {254'b0, multiplicand, 1'b0} + {253'b0, multiplicand, 2'b0};
-                        4'd8:  product <= product + {252'b0, multiplicand, 3'b0};
-                        4'd9:  product <= product + {255'b0, multiplicand} + {252'b0, multiplicand, 3'b0};
-                        4'd10: product <= product + {254'b0, multiplicand, 1'b0} + {252'b0, multiplicand, 3'b0};
-                        4'd11: product <= product + {255'b0, multiplicand} + {254'b0, multiplicand, 1'b0} + {252'b0, multiplicand, 3'b0};
-                        4'd12: product <= product + {253'b0, multiplicand, 2'b0} + {252'b0, multiplicand, 3'b0};
-                        4'd13: product <= product + {255'b0, multiplicand} + {253'b0, multiplicand, 2'b0} + {252'b0, multiplicand, 3'b0};
-                        4'd14: product <= product + {254'b0, multiplicand, 1'b0} + {253'b0, multiplicand, 2'b0} + {252'b0, multiplicand, 3'b0};
-                        4'd15: product <= product + {255'b0, multiplicand} + {254'b0, multiplicand, 1'b0} + {253'b0, multiplicand, 2'b0} + {252'b0, multiplicand, 3'b0};
-                    endcase
+                    // Radix-2 multiplier to minimize LUT usage.
+                    // Instead of evaluating 16 massive cases, process 1 bit at a time
+                    // or 2 bits linearly. Let's do Radix-2 for maximum area savings:
+                    if (multiplier[0]) begin
+                        product <= product + multiplicand;
+                    end
                     
-                    multiplicand <= multiplicand << 4;
-                    multiplier <= multiplier >> 4;
+                    multiplicand <= multiplicand << 1;
+                    multiplier <= multiplier >> 1;
                     counter <= counter + 1;
                     
-                    if (counter == 63) begin 
-                        // $display("[MUL_25519 DEBUG] Time %t: Counter reached 63, moving to REDUCE_1", $time);
+                    if (counter == 254) begin 
+                        // $display("[MUL_25519 DEBUG] Time %t: Counter reached 254, moving to REDUCE_1", $time);
                         state <= REDUCE_1;
                     end
                 end
