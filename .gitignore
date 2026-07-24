@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+._*
+
+# Python Virtual Environments
+venv/
+venv_pdf/
+__pycache__/
+*.pyc
+
+# Simulation and Compilation outputs
+*.vcd
+*.out
+*.log
+a.out
+
+# Executable binaries for simulation
+soc_sim
+aes_sim
+bike_sim
+ed_sim
+rsa_sim
+shake_sim
+tb_spi.out
+
+# Office documents (if any)
+*.docx

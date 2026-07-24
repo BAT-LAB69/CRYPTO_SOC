@@ -1,6 +1,0 @@
-./MMIO_+_CORE/include_modules.v:338: warning: Port 6 (c0) of bike_top expects 127 bits, got 166.
-./MMIO_+_CORE/include_modules.v:338:        : Pruning 39 high bits of the expression.
-./MMIO_+_CORE/include_modules.v:338: warning: Port 7 (c1) of bike_top expects 127 bits, got 166.
-./MMIO_+_CORE/include_modules.v:338:        : Pruning 39 high bits of the expression.
-
-RETURN CODE: 0
