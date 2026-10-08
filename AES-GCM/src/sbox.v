@@ -1,36 +1,16 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 01/28/2026 06:04:33 PM
-// Design Name: 
 // Module Name: sbox
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description: AES S-Box ROM (self-contained with initial values)
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module sbox(
-input  [7:0] a,
-    output [7:0] c
+    input  wire [7:0] a,
+    output wire [7:0] c
 );
 
-    // Khai báo mảng nhớ 256 phần tử (ROM)
-   
- (* rom_style = "block" *)  (* keep = "true" *)   reg [7:0] rom [0:255];
+    (* rom_style = "distributed" *) reg [7:0] rom [0:255];
 
-    // Khởi tạo giá trị cho ROM
-    // Yosys/OpenLane hỗ trợ tổng hợp khối initial này thành logic cố định
     initial begin
         rom[8'h00] = 8'h63; rom[8'h01] = 8'h7c; rom[8'h02] = 8'h77; rom[8'h03] = 8'h7b;
         rom[8'h04] = 8'hf2; rom[8'h05] = 8'h6b; rom[8'h06] = 8'h6f; rom[8'h07] = 8'hc5;
@@ -114,4 +94,5 @@ input  [7:0] a,
     end
 
     assign c = rom[a];
+
 endmodule

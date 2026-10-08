@@ -1,174 +1,167 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 01/28/2026 09:40:04 PM
-// Design Name: 
 // Module Name: keyexpan
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description: AES-256 Key Expansion (pure structural RTL with sbox instances)
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module keyexpan(
-input  [255:0] key,       
-    output [1919:0] roundKeys   // 15 round keys x 128 bit = 1920 bit
+    input  wire [255:0]  key,
+    output wire [1919:0] roundKeys   // 15 round keys x 128 bit = 1920 bit
 );
-    reg [31:0] w [0:59];        // 60 word 
-    integer i;
-    reg [31:0] temp;
-    
-    // =========================================================================
-    // INTERNAL S-BOX ROM (Để thay thế function sbox logic phức tạp)
-    // =========================================================================
-   (* rom_style = "block" *)  reg [7:0] sbox_rom [0:255];
-    
-    initial begin
-        sbox_rom[8'h00] = 8'h63; sbox_rom[8'h01] = 8'h7c; sbox_rom[8'h02] = 8'h77; sbox_rom[8'h03] = 8'h7b;
-        sbox_rom[8'h04] = 8'hf2; sbox_rom[8'h05] = 8'h6b; sbox_rom[8'h06] = 8'h6f; sbox_rom[8'h07] = 8'hc5;
-        sbox_rom[8'h08] = 8'h30; sbox_rom[8'h09] = 8'h01; sbox_rom[8'h0a] = 8'h67; sbox_rom[8'h0b] = 8'h2b;
-        sbox_rom[8'h0c] = 8'hfe; sbox_rom[8'h0d] = 8'hd7; sbox_rom[8'h0e] = 8'hab; sbox_rom[8'h0f] = 8'h76;
-        sbox_rom[8'h10] = 8'hca; sbox_rom[8'h11] = 8'h82; sbox_rom[8'h12] = 8'hc9; sbox_rom[8'h13] = 8'h7d;
-        sbox_rom[8'h14] = 8'hfa; sbox_rom[8'h15] = 8'h59; sbox_rom[8'h16] = 8'h47; sbox_rom[8'h17] = 8'hf0;
-        sbox_rom[8'h18] = 8'had; sbox_rom[8'h19] = 8'hd4; sbox_rom[8'h1a] = 8'ha2; sbox_rom[8'h1b] = 8'haf;
-        sbox_rom[8'h1c] = 8'h9c; sbox_rom[8'h1d] = 8'ha4; sbox_rom[8'h1e] = 8'h72; sbox_rom[8'h1f] = 8'hc0;
-        sbox_rom[8'h20] = 8'hb7; sbox_rom[8'h21] = 8'hfd; sbox_rom[8'h22] = 8'h93; sbox_rom[8'h23] = 8'h26;
-        sbox_rom[8'h24] = 8'h36; sbox_rom[8'h25] = 8'h3f; sbox_rom[8'h26] = 8'hf7; sbox_rom[8'h27] = 8'hcc;
-        sbox_rom[8'h28] = 8'h34; sbox_rom[8'h29] = 8'ha5; sbox_rom[8'h2a] = 8'he5; sbox_rom[8'h2b] = 8'hf1;
-        sbox_rom[8'h2c] = 8'h71; sbox_rom[8'h2d] = 8'hd8; sbox_rom[8'h2e] = 8'h31; sbox_rom[8'h2f] = 8'h15;
-        sbox_rom[8'h30] = 8'h04; sbox_rom[8'h31] = 8'hc7; sbox_rom[8'h32] = 8'h23; sbox_rom[8'h33] = 8'hc3;
-        sbox_rom[8'h34] = 8'h18; sbox_rom[8'h35] = 8'h96; sbox_rom[8'h36] = 8'h05; sbox_rom[8'h37] = 8'h9a;
-        sbox_rom[8'h38] = 8'h07; sbox_rom[8'h39] = 8'h12; sbox_rom[8'h3a] = 8'h80; sbox_rom[8'h3b] = 8'he2;
-        sbox_rom[8'h3c] = 8'heb; sbox_rom[8'h3d] = 8'h27; sbox_rom[8'h3e] = 8'hb2; sbox_rom[8'h3f] = 8'h75;
-        sbox_rom[8'h40] = 8'h09; sbox_rom[8'h41] = 8'h83; sbox_rom[8'h42] = 8'h2c; sbox_rom[8'h43] = 8'h1a;
-        sbox_rom[8'h44] = 8'h1b; sbox_rom[8'h45] = 8'h6e; sbox_rom[8'h46] = 8'h5a; sbox_rom[8'h47] = 8'ha0;
-        sbox_rom[8'h48] = 8'h52; sbox_rom[8'h49] = 8'h3b; sbox_rom[8'h4a] = 8'hd6; sbox_rom[8'h4b] = 8'hb3;
-        sbox_rom[8'h4c] = 8'h29; sbox_rom[8'h4d] = 8'he3; sbox_rom[8'h4e] = 8'h2f; sbox_rom[8'h4f] = 8'h84;
-        sbox_rom[8'h50] = 8'h53; sbox_rom[8'h51] = 8'hd1; sbox_rom[8'h52] = 8'h00; sbox_rom[8'h53] = 8'hed;
-        sbox_rom[8'h54] = 8'h20; sbox_rom[8'h55] = 8'hfc; sbox_rom[8'h56] = 8'hb1; sbox_rom[8'h57] = 8'h5b;
-        sbox_rom[8'h58] = 8'h6a; sbox_rom[8'h59] = 8'hcb; sbox_rom[8'h5a] = 8'hbe; sbox_rom[8'h5b] = 8'h39;
-        sbox_rom[8'h5c] = 8'h4a; sbox_rom[8'h5d] = 8'h4c; sbox_rom[8'h5e] = 8'h58; sbox_rom[8'h5f] = 8'hcf;
-        sbox_rom[8'h60] = 8'hd0; sbox_rom[8'h61] = 8'hef; sbox_rom[8'h62] = 8'haa; sbox_rom[8'h63] = 8'hfb;
-        sbox_rom[8'h64] = 8'h43; sbox_rom[8'h65] = 8'h4d; sbox_rom[8'h66] = 8'h33; sbox_rom[8'h67] = 8'h85;
-        sbox_rom[8'h68] = 8'h45; sbox_rom[8'h69] = 8'hf9; sbox_rom[8'h6a] = 8'h02; sbox_rom[8'h6b] = 8'h7f;
-        sbox_rom[8'h6c] = 8'h50; sbox_rom[8'h6d] = 8'h3c; sbox_rom[8'h6e] = 8'h9f; sbox_rom[8'h6f] = 8'ha8;
-        sbox_rom[8'h70] = 8'h51; sbox_rom[8'h71] = 8'ha3; sbox_rom[8'h72] = 8'h40; sbox_rom[8'h73] = 8'h8f;
-        sbox_rom[8'h74] = 8'h92; sbox_rom[8'h75] = 8'h9d; sbox_rom[8'h76] = 8'h38; sbox_rom[8'h77] = 8'hf5;
-        sbox_rom[8'h78] = 8'hbc; sbox_rom[8'h79] = 8'hb6; sbox_rom[8'h7a] = 8'hda; sbox_rom[8'h7b] = 8'h21;
-        sbox_rom[8'h7c] = 8'h10; sbox_rom[8'h7d] = 8'hff; sbox_rom[8'h7e] = 8'hf3; sbox_rom[8'h7f] = 8'hd2;
-        sbox_rom[8'h80] = 8'hcd; sbox_rom[8'h81] = 8'h0c; sbox_rom[8'h82] = 8'h13; sbox_rom[8'h83] = 8'hec;
-        sbox_rom[8'h84] = 8'h5f; sbox_rom[8'h85] = 8'h97; sbox_rom[8'h86] = 8'h44; sbox_rom[8'h87] = 8'h17;
-        sbox_rom[8'h88] = 8'hc4; sbox_rom[8'h89] = 8'ha7; sbox_rom[8'h8a] = 8'h7e; sbox_rom[8'h8b] = 8'h3d;
-        sbox_rom[8'h8c] = 8'h64; sbox_rom[8'h8d] = 8'h5d; sbox_rom[8'h8e] = 8'h19; sbox_rom[8'h8f] = 8'h73;
-        sbox_rom[8'h90] = 8'h60; sbox_rom[8'h91] = 8'h81; sbox_rom[8'h92] = 8'h4f; sbox_rom[8'h93] = 8'hdc;
-        sbox_rom[8'h94] = 8'h22; sbox_rom[8'h95] = 8'h2a; sbox_rom[8'h96] = 8'h90; sbox_rom[8'h97] = 8'h88;
-        sbox_rom[8'h98] = 8'h46; sbox_rom[8'h99] = 8'hee; sbox_rom[8'h9a] = 8'hb8; sbox_rom[8'h9b] = 8'h14;
-        sbox_rom[8'h9c] = 8'hde; sbox_rom[8'h9d] = 8'h5e; sbox_rom[8'h9e] = 8'h0b; sbox_rom[8'h9f] = 8'hdb;
-        sbox_rom[8'ha0] = 8'he0; sbox_rom[8'ha1] = 8'h32; sbox_rom[8'ha2] = 8'h3a; sbox_rom[8'ha3] = 8'h0a;
-        sbox_rom[8'ha4] = 8'h49; sbox_rom[8'ha5] = 8'h06; sbox_rom[8'ha6] = 8'h24; sbox_rom[8'ha7] = 8'h5c;
-        sbox_rom[8'ha8] = 8'hc2; sbox_rom[8'ha9] = 8'hd3; sbox_rom[8'haa] = 8'hac; sbox_rom[8'hab] = 8'h62;
-        sbox_rom[8'hac] = 8'h91; sbox_rom[8'had] = 8'h95; sbox_rom[8'hae] = 8'he4; sbox_rom[8'haf] = 8'h79;
-        sbox_rom[8'hb0] = 8'he7; sbox_rom[8'hb1] = 8'hc8; sbox_rom[8'hb2] = 8'h37; sbox_rom[8'hb3] = 8'h6d;
-        sbox_rom[8'hb4] = 8'h8d; sbox_rom[8'hb5] = 8'hd5; sbox_rom[8'hb6] = 8'h4e; sbox_rom[8'hb7] = 8'ha9;
-        sbox_rom[8'hb8] = 8'h6c; sbox_rom[8'hb9] = 8'h56; sbox_rom[8'hba] = 8'hf4; sbox_rom[8'hbb] = 8'hea;
-        sbox_rom[8'hbc] = 8'h65; sbox_rom[8'hbd] = 8'h7a; sbox_rom[8'hbe] = 8'hae; sbox_rom[8'hbf] = 8'h08;
-        sbox_rom[8'hc0] = 8'hba; sbox_rom[8'hc1] = 8'h78; sbox_rom[8'hc2] = 8'h25; sbox_rom[8'hc3] = 8'h2e;
-        sbox_rom[8'hc4] = 8'h1c; sbox_rom[8'hc5] = 8'ha6; sbox_rom[8'hc6] = 8'hb4; sbox_rom[8'hc7] = 8'hc6;
-        sbox_rom[8'hc8] = 8'he8; sbox_rom[8'hc9] = 8'hdd; sbox_rom[8'hca] = 8'h74; sbox_rom[8'hcb] = 8'h1f;
-        sbox_rom[8'hcc] = 8'h4b; sbox_rom[8'hcd] = 8'hbd; sbox_rom[8'hce] = 8'h8b; sbox_rom[8'hcf] = 8'h8a;
-        sbox_rom[8'hd0] = 8'h70; sbox_rom[8'hd1] = 8'h3e; sbox_rom[8'hd2] = 8'hb5; sbox_rom[8'hd3] = 8'h66;
-        sbox_rom[8'hd4] = 8'h48; sbox_rom[8'hd5] = 8'h03; sbox_rom[8'hd6] = 8'hf6; sbox_rom[8'hd7] = 8'h0e;
-        sbox_rom[8'hd8] = 8'h61; sbox_rom[8'hd9] = 8'h35; sbox_rom[8'hda] = 8'h57; sbox_rom[8'hdb] = 8'hb9;
-        sbox_rom[8'hdc] = 8'h86; sbox_rom[8'hdd] = 8'hc1; sbox_rom[8'hde] = 8'h1d; sbox_rom[8'hdf] = 8'h9e;
-        sbox_rom[8'he0] = 8'he1; sbox_rom[8'he1] = 8'hf8; sbox_rom[8'he2] = 8'h98; sbox_rom[8'he3] = 8'h11;
-        sbox_rom[8'he4] = 8'h69; sbox_rom[8'he5] = 8'hd9; sbox_rom[8'he6] = 8'h8e; sbox_rom[8'he7] = 8'h94;
-        sbox_rom[8'he8] = 8'h9b; sbox_rom[8'he9] = 8'h1e; sbox_rom[8'hea] = 8'h87; sbox_rom[8'heb] = 8'he9;
-        sbox_rom[8'hec] = 8'hce; sbox_rom[8'hed] = 8'h55; sbox_rom[8'hee] = 8'h28; sbox_rom[8'hef] = 8'hdf;
-        sbox_rom[8'hf0] = 8'h8c; sbox_rom[8'hf1] = 8'ha1; sbox_rom[8'hf2] = 8'h89; sbox_rom[8'hf3] = 8'h0d;
-        sbox_rom[8'hf4] = 8'hbf; sbox_rom[8'hf5] = 8'he6; sbox_rom[8'hf6] = 8'h42; sbox_rom[8'hf7] = 8'h68;
-        sbox_rom[8'hf8] = 8'h41; sbox_rom[8'hf9] = 8'h99; sbox_rom[8'hfa] = 8'h2d; sbox_rom[8'hfb] = 8'h0f;
-        sbox_rom[8'hfc] = 8'hb0; sbox_rom[8'hfd] = 8'h54; sbox_rom[8'hfe] = 8'hbb; sbox_rom[8'hff] = 8'h16;
-    end
-    
-    always @(*) begin
-        w[0] = key[255:224];
-        w[1] = key[223:192];
-        w[2] = key[191:160];
-        w[3] = key[159:128];
-        w[4] = key[127:96];
-        w[5] = key[95:64];
-        w[6] = key[63:32];
-        w[7] = key[31:0];
+    wire [31:0] w [0:59];
 
-        for (i = 8; i < 60; i = i + 1) begin
-            temp = w[i-1];
-            if (i % 8 == 0) begin
-                temp = subWord(rotWord(temp)) ^ rcon(i/8);
-            end 
-            else if (i % 8 == 4) begin
-                temp = subWord(temp);
-            end
+    // w[0..7] directly from 256-bit key
+    assign w[0] = key[255:224];
+    assign w[1] = key[223:192];
+    assign w[2] = key[191:160];
+    assign w[3] = key[159:128];
+    assign w[4] = key[127:96];
+    assign w[5] = key[95:64];
+    assign w[6] = key[63:32];
+    assign w[7] = key[31:0];
 
-            w[i] = w[i-8] ^ temp;
-        end
-    end
-
-    assign roundKeys = {
-        w[0],  w[1],  w[2],  w[3],    
-        w[4],  w[5],  w[6],  w[7],    
-        w[8],  w[9],  w[10], w[11],   
-        w[12], w[13], w[14], w[15],  
-        w[16], w[17], w[18], w[19],  
-        w[20], w[21], w[22], w[23],   
-        w[24], w[25], w[26], w[27],   
-        w[28], w[29], w[30], w[31],   
-        w[32], w[33], w[34], w[35],   
-        w[36], w[37], w[38], w[39],  
-        w[40], w[41], w[42], w[43],  
-        w[44], w[45], w[46], w[47],   
-        w[48], w[49], w[50], w[51], 
-        w[52], w[53], w[54], w[55],   
-        w[56], w[57], w[58], w[59]    
-    };
-
+    // Helper functions for rotWord and rcon
     function [31:0] rotWord(input [31:0] x);
         begin
             rotWord = {x[23:0], x[31:24]};
         end
     endfunction
 
-    // Sử dụng mảng ROM đã khai báo thay vì gọi hàm sbox
-    function [31:0] subWord(input [31:0] x);
-        begin
-            subWord[31:24] = sbox_rom[x[31:24]]; 
-            subWord[23:16] = sbox_rom[x[23:16]];
-            subWord[15:8]  = sbox_rom[x[15:8]];  
-            subWord[7:0]   = sbox_rom[x[7:0]];   
-        end
-    endfunction
+    // 13 subWord operations needed for AES-256 key schedule:
+    // idx 0: i=8  (rotWord(w[7]))
+    // idx 1: i=12 (w[11])
+    // idx 2: i=16 (rotWord(w[15]))
+    // idx 3: i=20 (w[19])
+    // idx 4: i=24 (rotWord(w[23]))
+    // idx 5: i=28 (w[27])
+    // idx 6: i=32 (rotWord(w[31]))
+    // idx 7: i=36 (w[35])
+    // idx 8: i=40 (rotWord(w[39]))
+    // idx 9: i=44 (w[43])
+    // idx 10: i=48 (rotWord(w[47]))
+    // idx 11: i=52 (w[51])
+    // idx 12: i=56 (rotWord(w[55]))
 
-    function [31:0] rcon(input integer i);
-        begin
-            case (i)
-                1: rcon = 32'h01000000;
-                2: rcon = 32'h02000000; 
-                3: rcon = 32'h04000000; 
-                4: rcon = 32'h08000000;
-                5: rcon = 32'h10000000; 
-                6: rcon = 32'h20000000;
-                7: rcon = 32'h40000000;
-                default: rcon = 32'h00000000;
-            endcase
+    wire [31:0] sub_in  [0:12];
+    wire [31:0] sub_out [0:12];
+
+    assign sub_in[0]  = rotWord(w[7]);
+    assign sub_in[1]  = w[11];
+    assign sub_in[2]  = rotWord(w[15]);
+    assign sub_in[3]  = w[19];
+    assign sub_in[4]  = rotWord(w[23]);
+    assign sub_in[5]  = w[27];
+    assign sub_in[6]  = rotWord(w[31]);
+    assign sub_in[7]  = w[35];
+    assign sub_in[8]  = rotWord(w[39]);
+    assign sub_in[9]  = w[43];
+    assign sub_in[10] = rotWord(w[47]);
+    assign sub_in[11] = w[51];
+    assign sub_in[12] = rotWord(w[55]);
+
+    // Instantiate 13 x 4 = 52 S-Boxes directly
+    genvar g;
+    generate
+        for (g = 0; g < 13; g = g + 1) begin : gen_sbox
+            sbox sb3 (.a(sub_in[g][31:24]), .c(sub_out[g][31:24]));
+            sbox sb2 (.a(sub_in[g][23:16]), .c(sub_out[g][23:16]));
+            sbox sb1 (.a(sub_in[g][15:8]),  .c(sub_out[g][15:8]));
+            sbox sb0 (.a(sub_in[g][7:0]),   .c(sub_out[g][7:0]));
         end
-    endfunction
+    endgenerate
+
+    // RCON constants:
+    // rcon(1) = 32'h01000000
+    // rcon(2) = 32'h02000000
+    // rcon(3) = 32'h04000000
+    // rcon(4) = 32'h08000000
+    // rcon(5) = 32'h10000000
+    // rcon(6) = 32'h20000000
+    // rcon(7) = 32'h40000000
+
+    // i = 8..15
+    assign w[8]  = w[0] ^ sub_out[0] ^ 32'h01000000;
+    assign w[9]  = w[1] ^ w[8];
+    assign w[10] = w[2] ^ w[9];
+    assign w[11] = w[3] ^ w[10];
+    assign w[12] = w[4] ^ sub_out[1];
+    assign w[13] = w[5] ^ w[12];
+    assign w[14] = w[6] ^ w[13];
+    assign w[15] = w[7] ^ w[14];
+
+    // i = 16..23
+    assign w[16] = w[8]  ^ sub_out[2] ^ 32'h02000000;
+    assign w[17] = w[9]  ^ w[16];
+    assign w[18] = w[10] ^ w[17];
+    assign w[19] = w[11] ^ w[18];
+    assign w[20] = w[12] ^ sub_out[3];
+    assign w[21] = w[13] ^ w[20];
+    assign w[22] = w[14] ^ w[21];
+    assign w[23] = w[15] ^ w[22];
+
+    // i = 24..31
+    assign w[24] = w[16] ^ sub_out[4] ^ 32'h04000000;
+    assign w[25] = w[17] ^ w[24];
+    assign w[26] = w[18] ^ w[25];
+    assign w[27] = w[19] ^ w[26];
+    assign w[28] = w[20] ^ sub_out[5];
+    assign w[29] = w[21] ^ w[28];
+    assign w[30] = w[22] ^ w[29];
+    assign w[31] = w[23] ^ w[30];
+
+    // i = 32..39
+    assign w[32] = w[24] ^ sub_out[6] ^ 32'h08000000;
+    assign w[33] = w[25] ^ w[32];
+    assign w[34] = w[26] ^ w[33];
+    assign w[35] = w[27] ^ w[34];
+    assign w[36] = w[28] ^ sub_out[7];
+    assign w[37] = w[29] ^ w[36];
+    assign w[38] = w[30] ^ w[37];
+    assign w[39] = w[31] ^ w[38];
+
+    // i = 40..47
+    assign w[40] = w[32] ^ sub_out[8] ^ 32'h10000000;
+    assign w[41] = w[33] ^ w[40];
+    assign w[42] = w[34] ^ w[41];
+    assign w[43] = w[35] ^ w[42];
+    assign w[44] = w[36] ^ sub_out[9];
+    assign w[45] = w[37] ^ w[44];
+    assign w[46] = w[38] ^ w[45];
+    assign w[47] = w[39] ^ w[46];
+
+    // i = 48..55
+    assign w[48] = w[40] ^ sub_out[10] ^ 32'h20000000;
+    assign w[49] = w[41] ^ w[48];
+    assign w[50] = w[42] ^ w[49];
+    assign w[51] = w[43] ^ w[50];
+    assign w[52] = w[44] ^ sub_out[11];
+    assign w[53] = w[45] ^ w[52];
+    assign w[54] = w[46] ^ w[53];
+    assign w[55] = w[47] ^ w[54];
+
+    // i = 56..59
+    assign w[56] = w[48] ^ sub_out[12] ^ 32'h40000000;
+    assign w[57] = w[49] ^ w[56];
+    assign w[58] = w[50] ^ w[57];
+    assign w[59] = w[51] ^ w[58];
+
+    // Pack all 15 round keys
+    assign roundKeys = {
+        w[0],  w[1],  w[2],  w[3],    // K0
+        w[4],  w[5],  w[6],  w[7],    // K1
+        w[8],  w[9],  w[10], w[11],   // K2
+        w[12], w[13], w[14], w[15],   // K3
+        w[16], w[17], w[18], w[19],   // K4
+        w[20], w[21], w[22], w[23],   // K5
+        w[24], w[25], w[26], w[27],   // K6
+        w[28], w[29], w[30], w[31],   // K7
+        w[32], w[33], w[34], w[35],   // K8
+        w[36], w[37], w[38], w[39],   // K9
+        w[40], w[41], w[42], w[43],   // K10
+        w[44], w[45], w[46], w[47],   // K11
+        w[48], w[49], w[50], w[51],   // K12
+        w[52], w[53], w[54], w[55],   // K13
+        w[56], w[57], w[58], w[59]    // K14
+    };
+
 endmodule
